@@ -1,0 +1,122 @@
+# Cursor Rules for New Project
+
+## Project Context
+This is a NestJS project with TypeScript. Always follow the established patterns and guidelines defined in the `/rules` folder.
+
+## Mandatory Rules to Follow
+
+### 1. Always Read Project Rules First
+Before making any changes, ALWAYS read the relevant files in the `/rules` folder:
+- `/rules/project-architect.md` - Understand project goals and tech stack
+- `/rules/architecture.md` - Follow architectural patterns and data flow
+- `/rules/coding-convention.md` - Best practice coding convention
+- `/rules/coding-standard.md` - Coding standard
+
+### 2. Code Standards Enforcement
+- Use TypeScript with strict typing
+- Follow camelCase for variables, PascalCase for components
+- Use Tailwind CSS for all styling
+- Implement proper error handling
+- Add proper TypeScript interfaces for all props and data
+
+### 3. Component Development
+- Create reusable, well-typed components
+- Use compound component patterns when appropriate
+- Implement proper accessibility (ARIA attributes, keyboard navigation)
+- Follow the established component structure in `/src/components/`
+- Use the existing Button component as a reference for new components
+
+### 4. File Organization
+- Follow the established folder structure in `/src/`
+- Place components in appropriate subfolders (ui/, forms/, layout/, features/)
+- Use absolute imports with `@/` prefix
+- Export components from index.ts files
+
+### 5. State Management
+- Use Context API for global state
+- Create custom hooks for complex logic
+- Follow unidirectional data flow patterns
+- Implement proper loading and error states
+
+### 6. Performance
+- Use React.memo for expensive components
+- Implement proper memoization with useMemo and useCallback
+- Follow code splitting patterns for large components
+- Optimize images and assets
+
+### 7. Testing
+- Write unit tests for components
+- Use the established test utilities
+- Follow the testing patterns in `/rules/component-guidelines.md`
+- Test user interactions and edge cases
+
+### 8. API Integration
+- Use the established service patterns
+- Implement proper error handling for API calls
+- Follow the repository pattern for data access
+- Use TypeScript interfaces for API responses
+
+## Project-Specific Guidelines
+
+### Tech Stack
+- Next.js 15 with App Router
+- TypeScript with strict mode
+- Tailwind CSS for styling
+- ESLint for code linting
+- Custom hooks for state management
+
+### Code Style
+- Use functional components with hooks
+- Implement proper TypeScript interfaces
+- Use Tailwind utility classes
+- Follow the established naming conventions
+- Add proper JSDoc comments for complex functions
+
+### Component Patterns
+- Use compound components for complex UI
+- Implement render props for flexible components
+- Create custom hooks for reusable logic
+- Follow the established error boundary patterns
+
+### File Structure
+```
+src/
+├── app/                 # Next.js App Router
+├── components/          # Reusable components
+│   ├── ui/             # Base UI components
+│   ├── forms/          # Form components
+│   ├── layout/         # Layout components
+│   └── features/       # Feature-specific components
+├── hooks/              # Custom hooks
+├── lib/                # External library configs
+├── services/           # API services
+├── store/              # State management
+├── types/              # TypeScript types
+└── utils/              # Utility functions
+```
+
+## Quality Assurance
+- All code must pass ESLint checks
+- Components must be properly typed
+- Follow accessibility guidelines
+- Implement proper error handling
+- Add appropriate loading states
+- Use semantic HTML elements
+
+## When Making Changes
+1. Read the relevant rules files first
+2. Follow the established patterns
+3. Maintain consistency with existing code
+4. Add proper TypeScript types
+5. Test the changes thoroughly
+6. Update documentation if needed
+
+## Prohibited Practices
+- Don't use inline styles (use Tailwind classes)
+- Don't use any types (use proper TypeScript interfaces)
+- Don't skip error handling
+- Don't ignore accessibility requirements
+- Don't break existing component patterns
+- Don't use class components (use functional components)
+
+Remember: This project follows a specific architecture and coding standards. Always refer to the `/rules` folder for detailed guidelines and maintain consistency with the established patterns.
