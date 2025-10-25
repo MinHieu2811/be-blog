@@ -1,0 +1,6 @@
+{
+  "postId": { "S": "01J123XYZULID" },
+  "slug": { "S": "my-first-post" },
+  "title": { "S": "Hello DynamoDB" },
+  "content": { "S": "This is the first blog post." }
+}
