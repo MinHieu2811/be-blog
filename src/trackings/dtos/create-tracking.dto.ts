@@ -21,3 +21,4 @@ export class CreateTrackingDto {
   @IsNotEmpty()
   data: TrackingData;
 }
+

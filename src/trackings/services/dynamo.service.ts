@@ -14,7 +14,8 @@ export class TrackingDynamoDBService {
       region: this.configService.get<string>('AWS_REGION'),
     });
     this.docClient = DynamoDBDocumentClient.from(client);
-    this.tableName = 'Tracking';
+    this.tableName =
+      this.configService.get<string>('TRACKING_DB_TABLE') || 'Tracking';
   }
 
   async createTracking(tracking: Tracking): Promise<Tracking> {

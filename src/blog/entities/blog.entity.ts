@@ -9,6 +9,7 @@ export class Blog {
   author: string;
   tags: string[];
   excerpt: string;
+  content?: string;
   coverImage?: string;
   likeCount: number;
   viewCount: number;

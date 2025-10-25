@@ -13,6 +13,10 @@ export class CreateBlogDto {
   @IsNotEmpty()
   excerpt: string;
 
+  @IsOptional()
+  @IsString()
+  content?: string;
+
   @IsArray()
   @IsString({ each: true })
   @IsOptional()

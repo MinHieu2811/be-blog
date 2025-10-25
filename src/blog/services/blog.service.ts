@@ -4,10 +4,14 @@ import { UpdateBlogDto } from '../dtos/update-blog.dto';
 import { Blog } from '../entities/blog.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { DynamoDBService } from './dynamo.service';
+import { MediaService } from '../../media/services/media.service';
 
 @Injectable()
 export class BlogService {
-  constructor(private readonly dynamoDBService: DynamoDBService) {}
+  constructor(
+    private readonly dynamoDBService: DynamoDBService,
+    private readonly mediaService: MediaService,
+  ) {}
 
   private generateSlug(title: string): string {
     return title
@@ -18,10 +22,11 @@ export class BlogService {
   }
 
   async create(createBlogDto: CreateBlogDto): Promise<Blog> {
-    const { title, author, excerpt, tags, status, coverImage } = createBlogDto;
+    const { title, author, excerpt, tags, status, coverImage, content } = createBlogDto;
     const postId = uuidv4();
     const slug = this.generateSlug(title);
     const now = new Date().toISOString();
+    const finalizedContent = await this.mediaService.finalizeContent(content ?? '', postId);
 
     const newPost: Blog = {
       postId,
@@ -29,6 +34,7 @@ export class BlogService {
       title,
       author,
       excerpt,
+      content: finalizedContent,
       tags: tags || [],
       status: status || 'draft',
       coverImage: coverImage || '',
@@ -56,7 +62,7 @@ export class BlogService {
   }
 
   async update(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
-    const { title, status } = updateBlogDto;
+    const { title, status, content } = updateBlogDto;
     await this.findOne(id);
 
     const dataToUpdate: Partial<Blog> = { ...updateBlogDto };
@@ -71,6 +77,10 @@ export class BlogService {
       if (!existingPost.publishedAt) {
         dataToUpdate.publishedAt = new Date().toISOString();
       }
+    }
+
+    if (content !== undefined) {
+      dataToUpdate.content = await this.mediaService.finalizeContent(content, id);
     }
 
     return this.dynamoDBService.updatePost(id, dataToUpdate);

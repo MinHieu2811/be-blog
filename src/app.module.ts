@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { BlogModule } from './blog/blog.module';
 import { ConfigModule } from '@nestjs/config';
 import { TrackingsModule } from './trackings/trackings.module';
-import { TrackingDynamoDBService } from './trackings/services/dynamo.service';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -12,9 +12,10 @@ import { TrackingDynamoDBService } from './trackings/services/dynamo.service';
       isGlobal: true,
     }),
     BlogModule,
+    MediaModule,
     TrackingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TrackingDynamoDBService],
+  providers: [AppService],
 })
 export class AppModule {}
