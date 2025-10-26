@@ -1,11 +1,11 @@
-service: be-blog-api
+service: blogs-api
 
 frameworkVersion: '3'
 
 provider:
   name: aws
   runtime: nodejs20.x
-  region: ${env:AWS_REGION, 'us-east-1'}
+  region: ${env:APP_AWS_REGION, 'ap-southeast-1'}
   environment:
     SQS_QUEUE_URL:
       Ref: TrackingQueue
@@ -59,6 +59,7 @@ functions:
 
 plugins:
   - serverless-offline
+  - serverless-dotenv-plugin
 
 custom:
   serverless-offline:
@@ -84,7 +85,9 @@ resources:
             KeyType: "HASH"
           - AttributeName: "slug"
             KeyType: "RANGE"
-        BillingMode: "PAY_PER_REQUEST"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
     TrackingTable:
       Type: "AWS::DynamoDB::Table"
       Properties:
@@ -99,7 +102,9 @@ resources:
             KeyType: "HASH"
           - AttributeName: "timestamp"
             KeyType: "RANGE"
-        BillingMode: "PAY_PER_REQUEST"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
     TrackingConsumerIAMRole:
       Type: "AWS::IAM::Role"
       Properties:

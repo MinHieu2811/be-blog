@@ -3,12 +3,22 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-echo "Building for production..."
-npm run build
+# Load environment variables from .env file
+if [ -f .env ]; then
+  echo "Loading environment variables from .env file..."
+  export $(cat .env | sed 's/#.*//g' | xargs)
+fi
 
-echo "Deploying to AWS Lambda..."
-serverless deploy --stage prod
+echo "Deploying to region: ${APP_AWS_REGION}..."
 
-echo "Deployment complete!"
+# Build the project
+echo "Building the project..."
+yarn build
+
+# Deploy with Serverless
+echo "Deploying with Serverless..."
+npx serverless deploy
+
+echo "Deployment finished."
 
 

@@ -25,7 +25,7 @@ export class S3Service {
   private readonly logger = new Logger(S3Service.name);
 
   constructor(private readonly configService: ConfigService) {
-    const region = this.configService.get<string>('AWS_REGION');
+    const region = this.configService.get<string>('APP_AWS_REGION');
     this.bucketName = this.configService.get<string>('S3_MEDIA_BUCKET') ?? '';
     this.cloudfrontDomain = this.configService.get<string>('CLOUDFRONT_DOMAIN') ?? '';
     this.s3 = new S3Client({ region });

@@ -9,7 +9,7 @@ export class SqsService {
 
   constructor(private readonly configService: ConfigService) {
     this.sqsClient = new SQSClient({
-      region: this.configService.get<string>('AWS_REGION'),
+      region: this.configService.get<string>('APP_AWS_REGION'),
     });
     this.queueUrl = this.configService.get<string>('SQS_QUEUE_URL') || '';
   }

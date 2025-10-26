@@ -18,7 +18,7 @@ export class DynamoDBService {
 
   constructor(private readonly configService: ConfigService) {
     const client = new DynamoDBClient({
-      region: this.configService.get<string>('AWS_REGION'),
+      region: this.configService.get<string>('APP_AWS_REGION'),
     });
     this.docClient = DynamoDBDocumentClient.from(client);
     this.tableName = this.configService.get<string>('DB_TABLE') || '';

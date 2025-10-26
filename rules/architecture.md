@@ -38,7 +38,7 @@ blog-backend/
 │   │   ├── dtos/                # Shared DTOs (e.g., pagination.dto.ts)
 │   │   └── utils/               # Helpers (e.g., uuid-generator.ts, logger.util.ts)
 │   ├── config/                  # Configuration module
-│   │   └── config.module.ts     # @nestjs/config setup for env vars (AWS_REGION, S3_BUCKET, DB_TABLE, etc.)
+│   │   └── config.module.ts     # @nestjs/config setup for env vars (APP_AWS_REGION, S3_BUCKET, DB_TABLE, etc.)
 │   ├── blog/                    # Core blog module (implements API endpoints)
 │   │   ├── blog.module.ts       # Imports controllers, services, Prisma
 │   │   ├── controllers/         # API controllers
