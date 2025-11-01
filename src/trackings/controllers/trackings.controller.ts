@@ -17,7 +17,9 @@ export class TrackingsController {
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  create(@Body() createTrackingDto: CreateTrackingDto) {
-    this.trackingsService.create(createTrackingDto);
+  async create(@Body() createTrackingDto: CreateTrackingDto) {
+    // We MUST await this in a Lambda environment to prevent early exit.
+    // The call to SQS is very fast, so this won't add much latency.
+    await this.trackingsService.create(createTrackingDto);
   }
 }

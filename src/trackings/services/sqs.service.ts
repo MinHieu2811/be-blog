@@ -15,10 +15,26 @@ export class SqsService {
   }
 
   async sendMessage(messageBody: object): Promise<void> {
+    console.log(`Attempting to send message to SQS Queue URL: ${this.queueUrl}`);
+
+    if (!this.queueUrl) {
+      console.error('SQS_QUEUE_URL is not configured. Message will not be sent.');
+      return;
+    }
+
     const command = new SendMessageCommand({
       QueueUrl: this.queueUrl,
       MessageBody: JSON.stringify(messageBody),
     });
-    await this.sqsClient.send(command);
+
+    try {
+      await this.sqsClient.send(command);
+      console.log('Successfully sent message to SQS.');
+    } catch (error) {
+      console.error('Failed to send message to SQS.');
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      // In a real-world scenario, you might want to re-throw or handle this error
+      // But for debugging, logging it is the most important step.
+    }
   }
 }
