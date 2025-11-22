@@ -6,6 +6,8 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: ${env:APP_AWS_REGION, 'ap-southeast-1'}
+  httpApi:
+    cors: true
   environment:
     SQS_QUEUE_URL:
       Ref: TrackingQueue

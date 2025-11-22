@@ -23,6 +23,7 @@ export const handler: ServerlessHandler = async (
   if (!cachedServer) {
     const expressApp = express();
     const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+    nestApp.enableCors();
     await nestApp.init();
     cachedServer = serverlessExpress({ app: expressApp });
   }
