@@ -23,8 +23,10 @@ export const handler: ServerlessHandler = async (
   if (!cachedServer) {
     const expressApp = express();
     const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+    nestApp.enableCors();
     await nestApp.init();
     cachedServer = serverlessExpress({ app: expressApp });
+    console.log('SERVERLESS BOOTED');
   }
 
   return cachedServer(event, context, callback) as Promise<APIGatewayProxyResult>;

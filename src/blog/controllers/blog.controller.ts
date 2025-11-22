@@ -14,10 +14,15 @@ import {
 import { BlogService } from '../services/blog.service';
 import { CreateBlogDto } from '../dtos/create-blog.dto';
 import { UpdateBlogDto } from '../dtos/update-blog.dto';
+import { SqsService } from '../services/sqs.service';
+import { LikePostDto } from '../dtos/like-post.dto';
 
 @Controller('api/blogs')
 export class BlogController {
-  constructor(private readonly blogService: BlogService) {}
+  constructor(
+    private readonly blogService: BlogService,
+    private readonly sqsService: SqsService,
+  ) {}
 
   @Post()
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -39,6 +44,16 @@ export class BlogController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
     return this.blogService.update(id, updateBlogDto);
+  }
+
+  @Post(':slug/like')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  like(@Param('slug') slug: string, @Body() likePostDto: LikePostDto) {
+    return this.sqsService.sendLikeMessage({
+      slug,
+      sessionId: likePostDto.sessionId,
+    });
   }
 
   @Delete(':id')

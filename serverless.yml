@@ -6,11 +6,19 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: ${env:APP_AWS_REGION, 'ap-southeast-1'}
+  httpApi:
+    cors: true
+  throttle:
+    rate: 10 # requests per second
+    burst: 20 # max concurrent requests
   environment:
     SQS_QUEUE_URL:
       Ref: TrackingQueue
-    DB_TABLE: Posts
-    TRACKING_DB_TABLE: Tracking
+    BLOG_LIKES_QUEUE_URL:
+      Ref: BlogLikesQueue
+    POST_DB_TABLE: Posts
+    LIKE_COUNTS_DB_TABLE: LikeCounts
+    TRACKING_POST_DB_TABLE: Tracking
   iam:
     role:
       statements:
@@ -19,6 +27,7 @@ provider:
             - "logs:CreateLogGroup"
             - "logs:CreateLogStream"
             - "logs:PutLogEvents"
+            - "logs:TagResource"
           Resource: "arn:aws:logs:*:*:*"
         - Effect: "Allow"
           Action:
@@ -32,19 +41,21 @@ provider:
           Resource:
             - "arn:aws:dynamodb:${aws:region}:*:table/Posts"
             - "arn:aws:dynamodb:${aws:region}:*:table/Tracking"
+            - "arn:aws:dynamodb:${aws:region}:*:table/LikeCounts"
         - Effect: "Allow"
           Action:
             - "s3:GetObject"
             - "s3:PutObject"
             - "s3:DeleteObject"
           Resource:
-            - "arn:aws:s3:::${env:S3_MDX_BUCKET}/*"
-            - "arn:aws:s3:::${env:S3_MEDIA_BUCKET}/*"
+            - "arn:aws:s3:::${env:S3_MDX_BUCKET, 'please-set-in-env'}/*"
+            - "arn:aws:s3:::${env:S3_MEDIA_BUCKET, 'please-set-in-env'}/*"
         - Effect: "Allow"
           Action:
             - "sqs:SendMessage"
           Resource:
             - "arn:aws:sqs:${aws:region}:*:TrackingQueue"
+            - "arn:aws:sqs:${aws:region}:*:BlogLikesQueue"
 
 functions:
   main:
@@ -62,14 +73,31 @@ functions:
               - TrackingQueue
               - Arn
           batchSize: 10
+  blogLikeConsumer:
+    handler: dist/blog/consumer.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - BlogLikesQueue
+              - Arn
+          batchSize: 10
 
 plugins:
-  - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-offline
+  - serverless-offline-sqs
 
 custom:
   serverless-offline:
     httpPort: 3000
+  serverless-offline-sqs:
+    autoCreate: false
+    sqs:
+      - functionName: trackingConsumer
+        queueName: TrackingQueue
+      - functionName: blogLikeConsumer
+        queueName: BlogLikesQueue
 
 resources:
   Resources:
@@ -77,6 +105,10 @@ resources:
       Type: "AWS::SQS::Queue"
       Properties:
         QueueName: "TrackingQueue"
+    BlogLikesQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "BlogLikesQueue"
     PostsTable:
       Type: "AWS::DynamoDB::Table"
       Properties:
@@ -94,6 +126,23 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
+    LikeCountsTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        TableName: "LikeCounts"
+        AttributeDefinitions:
+          - AttributeName: "slug"
+            AttributeType: "S"
+          - AttributeName: "sessionId"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "slug"
+            KeyType: "HASH"
+          - AttributeName: "sessionId"
+            KeyType: "RANGE"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
     TrackingTable:
       Type: "AWS::DynamoDB::Table"
       Properties:
@@ -134,6 +183,7 @@ resources:
                     - "logs:CreateLogGroup"
                     - "logs:CreateLogStream"
                     - "logs:PutLogEvents"
+                    - "logs:TagResource"
                   Resource: "arn:aws:logs:*:*:*"
                 - Effect: "Allow"
                   Action:

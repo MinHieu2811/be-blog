@@ -10,18 +10,21 @@ import {
   ScanCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { Blog } from '../entities/blog.entity';
+import { BlogLike } from '../entities/blog-like.entity';
 
 @Injectable()
 export class DynamoDBService {
   private readonly docClient: DynamoDBDocumentClient;
   private readonly tableName: string;
+  private readonly likeCountsTableName: string;
 
   constructor(private readonly configService: ConfigService) {
     const client = new DynamoDBClient({
       region: this.configService.get<string>('APP_AWS_REGION'),
     });
     this.docClient = DynamoDBDocumentClient.from(client);
-    this.tableName = this.configService.get<string>('DB_TABLE') || '';
+    this.tableName = this.configService.get<string>('POST_DB_TABLE') || '';
+    this.likeCountsTableName = this.configService.get<string>('LIKE_COUNTS_DB_TABLE') || '';
   }
 
   async createPost(post: Blog): Promise<Blog> {
@@ -84,5 +87,41 @@ export class DynamoDBService {
       Key: { postId },
     });
     await this.docClient.send(command);
+  }
+
+  async getBlogLike(slug: string, sessionId: string): Promise<BlogLike | undefined> {
+    const command = new GetCommand({
+      TableName: this.likeCountsTableName,
+      Key: { slug, sessionId },
+    });
+    const { Item } = await this.docClient.send(command);
+    return Item as BlogLike;
+  }
+
+  async updateBlogLike(blogLike: BlogLike): Promise<BlogLike> {
+    const command = new PutCommand({
+      TableName: this.likeCountsTableName,
+      Item: blogLike,
+    });
+    await this.docClient.send(command);
+    return blogLike;
+  }
+
+  async incrementBlogLikes(slug: string): Promise<any> {
+    const command = new UpdateCommand({
+      TableName: this.tableName,
+      Key: { slug },
+      UpdateExpression: 'ADD #likeCount :inc',
+      ExpressionAttributeNames: {
+        '#likeCount': 'likeCount',
+      },
+      ExpressionAttributeValues: {
+        ':inc': 1,
+      },
+      ReturnValues: 'ALL_NEW',
+    });
+
+    const { Attributes } = await this.docClient.send(command);
+    return Attributes;
   }
 }
